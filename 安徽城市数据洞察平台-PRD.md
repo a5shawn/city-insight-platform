@@ -140,17 +140,236 @@
 
 ---
 
-## 4. 业务场景
+## 4. 功能模块详解
 
-以**安徽省**为数据原型，模拟一个城市管理者的日常数据监控场景。
+### 4.1 登录/注册
 
-| 模块           | 业务场景                 | 负责人用它做什么                            |
-| -------------- | ------------------------ | ------------------------------------------- |
-| **总览驾驶舱** | 每天早上的"城市数据日报" | 一屏看全省GDP、人口、空气质量，发现异常区域 |
-| **经济发展**   | 季度经济分析会           | 看各市GDP排名、产业结构变化、招商引资情况   |
-| **人口画像**   | 人口发展规划             | 看各市人口结构、城镇化率、人口流动趋势      |
-| **交通监测**   | 城市交通综合治理         | 看各市拥堵指数、公共交通运营、交通事故分布  |
-| **环境生态**   | 环保督查                 | 看各市AQI排名、主要污染物、水质、绿化       |
+**页面说明：** 用户认证入口，支持注册新账号和登录已有账号。
+
+**布局：**
+
+```
+┌─────────────────────────────────────┐
+│       安徽城市数据洞察平台            │
+│          Logomark                    │
+│                                     │
+│  ┌─────────────────────────────┐    │
+│  │    用户名                    │    │
+│  │    [________________]       │    │
+│  │    密码                      │    │
+│  │    [________________]       │    │
+│  │                             │    │
+│  │    [ 登  录 ]               │    │
+│  │                             │    │
+│  │    没有账号？立即注册        │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│    © 2026 安徽城市数据洞察平台      │
+└─────────────────────────────────────┘
+```
+
+**状态处理：**
+- 表单校验：用户名不能为空，密码不少于6位
+- 加载状态：登录按钮显示 loading，禁用重复点击
+- 错误状态：后端返回错误信息 Toast 提示（如"用户名或密码错误"）
+- Token存储：登录成功后将 JWT 存入 localStorage，跳转首页
+
+### 4.2 总览驾驶舱（Dashboard）
+
+**页面说明：** 登录后默认首页，城市管理者"一屏知全貌"的日报式数据面板。
+
+**布局：**
+
+```
+┌─────────────────────────────────────────────┐
+│  Logo    安徽城市数据洞察平台    admin  退出 │
+├─────────┬─────────┬─────────┬───────────────┤
+│ 地区GDP │ 常住人口 │ 总面积  │ 平均AQI       │
+│ 4.5万亿 │ 6127万  │ 14.01万 │ 72（良）      │
+│ ↑5.8%   │ ↑0.3%   │   km²   │ ↓3.2%         │
+├─────────┴─────────┴─────────┴───────────────┤
+│  ┌─────────────────────────────────────┐    │
+│  │     安徽省地图（16市）              │    │
+│  │     芜湖市高亮标记                  │    │
+│  │     按GDP着色 + 悬浮显示数据        │    │
+│  │     点击任意市→下钻                 │    │
+│  └─────────────────────────────────────┘    │
+├──────────┬──────────────────────────────────┤
+│ 实时告警 │ 各市GDP排名Top5                  │
+│ ⚠ 合肥..│ 1. 合肥    1.2万亿             │
+│ ⚠ 芜湖..│ 2. 芜湖    4500亿              │
+│ ⚠ 阜阳..│ 3. 滁州    3600亿              │
+│ ...滚动  │ 4. 阜阳    3200亿              │
+│          │ 5. 安庆    2800亿              │
+└──────────┴──────────────────────────────────┘
+```
+
+**核心交互：**
+- 地图点击任意市 → 下钻到该市区县地图
+- 面包屑显示"安徽省 > 芜湖市"，支持点击返回
+- 告警滚动条自动轮播各市异常事件
+
+**组件拆分：**
+
+| 组件 | 职责 |
+|---|---|
+| `KpiCard.vue` | 指标数字展示 + 同比箭头（↑/↓） |
+| `MapChart.vue` | ECharts 地图渲染 + 下钻 + 高亮 |
+| `AlertBar.vue` | 告警消息滚动条 |
+| `RegionBreadcrumb.vue` | 面包屑导航，支持点击跳转 |
+
+**状态处理：**
+- 加载中：4个KPI卡片显示骨架屏，地图显示 loading
+- 空数据：地图区域灰色显示"暂无数据"
+- 错误：Toast 提示 + 重试按钮
+
+### 4.3 经济发展（Economy）
+
+**页面说明：** 季度/年度经济分析会用数据面板，联动当前选中区域。
+
+**布局：**
+
+```
+┌─────────────────────────────────────────────┐
+│  经济发展        安徽省 > 芜湖市   [返回]   │
+├────────────────┬────────────────────────────┤
+│  ┌───────────┐ │  ┌────────────────────┐   │
+│  │GDP趋势图   │ │  │产业结构玫瑰图      │   │
+│  │(折线图)    │ │  │(饼图/玫瑰图)       │   │
+│  │年/季度切换 │ │  │一产/二产/三产      │   │
+│  │2021-2025  │ │  │占比展示            │   │
+│  └───────────┘ │  └────────────────────┘   │
+├────────────────┼────────────────────────────┤
+│  ┌───────────┐ │  ┌────────────────────┐   │
+│  │各市GDP排名 │ │  │招商引资趋势        │   │
+│  │(柱状图)    │ │  │(面积图)            │   │
+│  │横向对比    │ │  │实际到位资金趋势    │   │
+│  └───────────┘ │  └────────────────────┘   │
+└────────────────┴────────────────────────────┘
+```
+
+**图表说明：**
+
+| 图表 | 类型 | 数据维度 | 交互 |
+|---|---|---|---|
+| GDP趋势 | 折线图 | 年份/季度 × GDP值 | 切换年/季度视图 |
+| 产业结构 | 玫瑰图 | 产业类别 × 产值 | 悬浮显示具体数值 |
+| 各市排名 | 柱状图 | 城市名 × GDP | 横向滚动 |
+| 招商引资 | 面积图 | 年份 × 投资额 | 悬浮显示趋势 |
+
+**联动规则：**
+- 地图选中区域变化 → 所有图表重新请求该区域数据
+- 省级视图显示全省16市排名
+- 市级视图显示下辖区县对比
+
+### 4.4 人口画像（Population）
+
+**页面说明：** 人口结构分析与城镇化趋势监控面板。
+
+**布局：**
+
+```
+┌─────────────────────────────────────────────┐
+│  人口画像        安徽省 > 芜湖市   [返回]   │
+├────────────────┬────────────────────────────┤
+│  ┌───────────┐ │  ┌────────────────────┐   │
+│  │人口年龄结构 │ │  │城乡分布            │   │
+│  │(金字塔图)  │ │  │(环形图)            │   │
+│  │0-14/15-59  │ │  │城镇 vs 农村        │   │
+│  │/60+岁     │ │  │城镇化率数字展示    │   │
+│  └───────────┘ │  └────────────────────┘   │
+├────────────────┼────────────────────────────┤
+│  ┌───────────┐ │  ┌────────────────────┐   │
+│  │各区县人口  │ │  │人口流动趋势        │   │
+│  │(热力图叠加 │ │  │(折线图)            │   │
+│  │地图)       │ │  │迁入/迁出线对比    │   │
+│  └───────────┘ │  └────────────────────┘   │
+└────────────────┴────────────────────────────┘
+```
+
+### 4.5 交通监测（Traffic）
+
+**页面说明：** 城市交通运行状况监测面板。
+
+**布局：**
+
+```
+┌─────────────────────────────────────────────┐
+│  交通监测        安徽省 > 芜湖市   [返回]   │
+├─────────┬─────────┬────────────────────────┤
+│ 实时路况│ 拥堵指数│ 公共交通运量            │
+│ 基本畅通│  1.48   │ ┌────────────────┐    │
+│  环形图 │  ↑12%   │ │公交/地铁/出租  │    │
+│         │ 早高峰  │ │堆叠面积图      │    │
+│         │ 标记    │ └────────────────┘    │
+├─────────┴─────────┴────────────────────────┤
+│  交通事故统计（柱状图）                     │
+│  ┌──────────────────────────────────┐     │
+│  │ 按类型：碰撞/追尾/刮擦           │     │
+│  │ 按区域：各区分布                │     │
+│  └──────────────────────────────────┘     │
+└────────────────────────────────────────────┘
+```
+
+### 4.6 生态环境（Environment）
+
+**页面说明：** 环境质量监控面板。
+
+**布局：**
+
+```
+┌─────────────────────────────────────────────┐
+│  生态环境        安徽省 > 芜湖市   [返回]   │
+├────────────────┬────────────────────────────┤
+│  ┌───────────┐ │  ┌────────────────────┐   │
+│  │AQI仪表盘   │ │  │污染物构成          │   │
+│  │ 72 (良)    │ │  │(环形图)            │   │
+│  │ 趋势线图   │ │  │PM2.5/PM10/O3      │   │
+│  │            │ │  │NO2/SO2            │   │
+│  └───────────┘ │  └────────────────────┘   │
+├────────────────┼────────────────────────────┤
+│  ┌───────────┐ │  ┌────────────────────┐   │
+│  │各市AQI排名 │ │  │绿化覆盖率          │   │
+│  │(柱状图)    │ │  │(横向条形图)        │   │
+│  │最好→最差   │ │  │各市对比            │   │
+│  └───────────┘ │  └────────────────────┘   │
+└────────────────┴────────────────────────────┘
+```
+
+### 4.7 全屏大屏（BigScreen）
+
+**页面说明：** 沉浸式城市运行指挥中心，适合投屏展示。
+
+**布局：**
+
+```
+┌─────────────────────────────────────────────────┐
+│  🏙 安徽城市运行指挥中心     2026-07-19 14:30   │
+├────────────────────┬────────────────────────────┤
+│                    │                            │
+│  4.5万亿   6127万  │  GDP排名                    │
+│  地区GDP   常住人口│  1. 合肥  1.2万亿          │
+│                    │  2. 芜湖  4500亿            │
+│  78.6%    72  良好 │  3. 滁州  3600亿            │
+│  城镇化率  AQI 空气│  ...自动刷新               │
+│                    │                            │
+│  ┌────────────────┐│                            │
+│  │  安徽省地图     ││                            │
+│  │  (自动轮播      ││                            │
+│  │  每5秒高亮一个) ││                            │
+│  └────────────────┘│                            │
+├────────────────────┴────────────────────────────┤
+│  实时数据: GDP↑5.8% | AQI 72 | 人口↑0.3% | ...  │
+│  ← 跑马灯滚动显示各市关键指标 →                  │
+└─────────────────────────────────────────────────┘
+```
+
+**核心功能：**
+- 全屏自适应（`100vw × 100vh`），F11 全屏体验
+- 地图自动轮播高亮城市（每5秒切换）
+- 底部跑马灯滚动各市关键指标
+- 右上角实时时钟
+- 数据模拟"实时刷新"（每10秒重新请求）
 
 ---
 
@@ -189,11 +408,11 @@
 
 ```sql
 CREATE TABLE users (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  username VARCHAR(50) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL,   -- bcrypt 加密
-  nickname VARCHAR(50),
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  id         INT PRIMARY KEY AUTO_INCREMENT,  -- 用户ID，自增主键
+  username   VARCHAR(50) UNIQUE NOT NULL,     -- 用户名，唯一索引，登录凭证
+  password   VARCHAR(255) NOT NULL,           -- bcrypt 加密后的密码哈希值
+  nickname   VARCHAR(50),                     -- 用户昵称，可选，用于页面显示
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP -- 注册时间
 );
 ```
 
@@ -201,13 +420,13 @@ CREATE TABLE users (
 
 ```sql
 CREATE TABLE regions (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(50) NOT NULL,
-  level TINYINT NOT NULL,           -- 1=省，2=市，3=区县
-  parent_id INT,                    -- 父级ID
-  area_code VARCHAR(20),
-  longitude DECIMAL(10,6),
-  latitude DECIMAL(10,6),
+  id         INT PRIMARY KEY AUTO_INCREMENT,  -- 区域ID，自增主键
+  name       VARCHAR(50) NOT NULL,            -- 区域名称（如：安徽省、芜湖市、镜湖区）
+  level      TINYINT NOT NULL,                -- 层级：1=省 2=市 3=区县，控制地图下钻深度
+  parent_id  INT,                             -- 父级ID，自关联实现树形结构（省→市→区县）
+  area_code  VARCHAR(20),                     -- 行政区划代码（如340100=合肥市）
+  longitude  DECIMAL(10,6),                  -- 区域中心点经度（地图标注定位）
+  latitude   DECIMAL(10,6),                  -- 区域中心点纬度（地图标注定位）
   FOREIGN KEY (parent_id) REFERENCES regions(id)
 );
 
@@ -221,38 +440,38 @@ CREATE TABLE regions (
 
 ```sql
 CREATE TABLE economy_data (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  region_id INT NOT NULL,
-  year INT NOT NULL,
-  quarter INT,                         -- 季度（1-4，年度数据为NULL）
-  gdp DECIMAL(15,2) DEFAULT 0,
-  gdp_growth DECIMAL(5,2) DEFAULT 0,
-  primary_industry DECIMAL(15,2) DEFAULT 0,
-  secondary_industry DECIMAL(15,2) DEFAULT 0,
-  tertiary_industry DECIMAL(15,2) DEFAULT 0,
-  budget_revenue DECIMAL(15,2) DEFAULT 0,
-  fixed_investment DECIMAL(15,2) DEFAULT 0,
+  id                 INT PRIMARY KEY AUTO_INCREMENT,  -- 记录ID，自增主键
+  region_id          INT NOT NULL,                    -- 关联区域ID，FK→regions.id，定位到省/市/区县
+  year               INT NOT NULL,                    -- 年份（2021-2025），数据筛选维度
+  quarter            INT,                             -- 季度（1-4），年度汇总数据为NULL
+  gdp                DECIMAL(15,2) DEFAULT 0,         -- GDP（亿元），核心经济指标
+  gdp_growth         DECIMAL(5,2)  DEFAULT 0,         -- GDP同比增速(%)，衡量经济发展速度
+  primary_industry   DECIMAL(15,2) DEFAULT 0,         -- 第一产业增加值（农业）
+  secondary_industry DECIMAL(15,2) DEFAULT 0,         -- 第二产业增加值（工业/制造业）
+  tertiary_industry  DECIMAL(15,2) DEFAULT 0,         -- 第三产业增加值（服务业）
+  budget_revenue     DECIMAL(15,2) DEFAULT 0,         -- 一般公共预算收入（亿元）
+  fixed_investment   DECIMAL(15,2) DEFAULT 0,         -- 固定资产投资（亿元）
   FOREIGN KEY (region_id) REFERENCES regions(id)
 );
-CREATE INDEX idx_economy_region_year ON economy_data(region_id, year);
+CREATE INDEX idx_economy_region_year ON economy_data(region_id, year);  -- 复合索引：区域+年份查询加速
 ```
 
 ### 6.4 人口数据表
 
 ```sql
 CREATE TABLE population_data (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  region_id INT NOT NULL,
-  year INT NOT NULL,
-  total_population INT DEFAULT 0,
-  urban_population INT DEFAULT 0,
-  rural_population INT DEFAULT 0,
-  male_population INT DEFAULT 0,
-  female_population INT DEFAULT 0,
-  age_0_14 INT DEFAULT 0,
-  age_15_59 INT DEFAULT 0,
-  age_60_plus INT DEFAULT 0,
-  net_inflow INT DEFAULT 0,            -- 净迁入（可为负数）
+  id                INT PRIMARY KEY AUTO_INCREMENT, -- 记录ID，自增主键
+  region_id         INT NOT NULL,                   -- 关联区域ID，FK→regions.id
+  year              INT NOT NULL,                   -- 年份（2021-2025）
+  total_population  INT DEFAULT 0,                  -- 常住人口总数（万人）
+  urban_population  INT DEFAULT 0,                  -- 城镇人口（万人），衡量城镇化水平
+  rural_population  INT DEFAULT 0,                  -- 农村人口（万人）
+  male_population   INT DEFAULT 0,                  -- 男性人口（万人）
+  female_population INT DEFAULT 0,                  -- 女性人口（万人）
+  age_0_14          INT DEFAULT 0,                  -- 0-14岁人口（少年儿童抚养比）
+  age_15_59         INT DEFAULT 0,                  -- 15-59岁人口（劳动年龄人口）
+  age_60_plus       INT DEFAULT 0,                  -- 60岁以上人口（老龄化程度）
+  net_inflow        INT DEFAULT 0,                  -- 净迁入人数（=迁入-迁出，负数表示净流出）
   FOREIGN KEY (region_id) REFERENCES regions(id)
 );
 ```
@@ -261,15 +480,15 @@ CREATE TABLE population_data (
 
 ```sql
 CREATE TABLE traffic_data (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  region_id INT NOT NULL,
-  record_date DATE NOT NULL,
-  hour INT DEFAULT 0,                  -- 小时(0-23)
-  congestion_index DECIMAL(4,2) DEFAULT 0,
-  bus_ridership INT DEFAULT 0,
-  metro_ridership INT DEFAULT 0,
-  taxi_ridership INT DEFAULT 0,
-  accidents INT DEFAULT 0,
+  id                INT PRIMARY KEY AUTO_INCREMENT,  -- 记录ID，自增主键
+  region_id         INT NOT NULL,                    -- 关联区域ID，FK→regions.id
+  record_date       DATE NOT NULL,                   -- 记录日期，时间维度
+  hour              INT DEFAULT 0,                   -- 小时（0-23），日汇总数据为NULL
+  congestion_index  DECIMAL(4,2) DEFAULT 0,          -- 拥堵指数（0-10），核心指标
+  bus_ridership     INT DEFAULT 0,                   -- 公交客运量（万人次）
+  metro_ridership   INT DEFAULT 0,                   -- 地铁客运量（万人次）
+  taxi_ridership    INT DEFAULT 0,                   -- 出租车客运量（万人次）
+  accidents         INT DEFAULT 0,                   -- 交通事故数（起）
   FOREIGN KEY (region_id) REFERENCES regions(id)
 );
 ```
@@ -278,17 +497,17 @@ CREATE TABLE traffic_data (
 
 ```sql
 CREATE TABLE environment_data (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  region_id INT NOT NULL,
-  record_date DATE NOT NULL,
-  aqi INT DEFAULT 0,
-  pm25 DECIMAL(6,2) DEFAULT 0,
-  pm10 DECIMAL(6,2) DEFAULT 0,
-  o3 DECIMAL(6,2) DEFAULT 0,
-  no2 DECIMAL(6,2) DEFAULT 0,
-  so2 DECIMAL(6,2) DEFAULT 0,
-  water_quality VARCHAR(20) DEFAULT '',
-  green_coverage DECIMAL(5,2) DEFAULT 0,
+  id             INT PRIMARY KEY AUTO_INCREMENT,  -- 记录ID，自增主键
+  region_id      INT NOT NULL,                    -- 关联区域ID，FK→regions.id
+  record_date    DATE NOT NULL,                   -- 监测日期
+  aqi            INT DEFAULT 0,                   -- 空气质量指数（0-500），数值越大污染越重
+  pm25           DECIMAL(6,2) DEFAULT 0,          -- PM2.5浓度（μg/m³），细颗粒物
+  pm10           DECIMAL(6,2) DEFAULT 0,          -- PM10浓度（μg/m³），可吸入颗粒物
+  o3             DECIMAL(6,2) DEFAULT 0,          -- 臭氧浓度（μg/m³）
+  no2            DECIMAL(6,2) DEFAULT 0,          -- 二氧化氮浓度（μg/m³）
+  so2            DECIMAL(6,2) DEFAULT 0,          -- 二氧化硫浓度（μg/m³）
+  water_quality  VARCHAR(20) DEFAULT '',           -- 水质类别（I类/II类/III类/IV类/V类）
+  green_coverage DECIMAL(5,2) DEFAULT 0,          -- 绿化覆盖率（%），生态建设指标
   FOREIGN KEY (region_id) REFERENCES regions(id)
 );
 ```
