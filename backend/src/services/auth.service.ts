@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs'
-import { generateToken } from '../middleware/auth.js'
-import type { UserInfo } from '../types/index.js'
+import { generateToken } from '../middleware/auth'
+import type { UserInfo } from '../types'
 
 // 后续步骤：替换为真实数据库查询
 interface MockUser {

@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
-import { sendError } from '../utils/response.js'
+import { sendError } from '../utils/response'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'city-insight-secret-key'
 

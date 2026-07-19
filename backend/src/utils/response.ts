@@ -1,5 +1,5 @@
 import type { Response } from 'express'
-import type { ApiResponse } from '../types/index.js'
+import type { ApiResponse } from '../types'
 
 /** 成功响应 */
 export function success<T>(data: T, message = '操作成功'): ApiResponse<T> {

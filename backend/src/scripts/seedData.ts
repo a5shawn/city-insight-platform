@@ -10,7 +10,7 @@
  * 运行：npx tsx src/scripts/seedData.ts
  */
 
-import { query, batchInsert, truncate, closePool } from '../config/db.js'
+import { query, batchInsert, truncate, closePool } from '../config/db'
 
 // ============================================================
 // 类型定义

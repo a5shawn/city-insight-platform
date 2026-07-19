@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
-import * as authService from '../services/auth.service.js'
-import { sendSuccess, sendError } from '../utils/response.js'
+import * as authService from '../services/auth.service'
+import { sendSuccess, sendError } from '../utils/response'
 
 /** 注册 */
 export const register = async (req: Request, res: Response, next: NextFunction) => {

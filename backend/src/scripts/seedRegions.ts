@@ -7,7 +7,7 @@
  * 运行：npx tsx src/scripts/seedRegions.ts
  */
 
-import { query, batchInsert, truncate, closePool } from '../config/db.js'
+import { query, batchInsert, truncate, closePool } from '../config/db'
 
 // ============================================================
 // 区域数据（parentId 在运行时动态获取）

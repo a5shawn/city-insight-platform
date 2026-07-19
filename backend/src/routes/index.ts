@@ -1,5 +1,5 @@
 import type { Express } from 'express'
-import { authRouter } from './auth.routes.js'
+import { authRouter } from './auth.routes'
 
 /**
  * 集中注册所有路由模块
