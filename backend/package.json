@@ -1,0 +1,22 @@
+{
+  "name": "city-insight-backend",
+  "version": "1.0.0",
+  "description": "安徽城市数据洞察平台 - 后端服务",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "seed:regions": "node scripts/seedRegions.js",
+    "seed:data": "node scripts/seedData.js"
+  },
+  "keywords": ["data-visualization", "express", "echarts"],
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.9.0"
+  }
+}
