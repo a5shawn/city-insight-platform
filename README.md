@@ -16,12 +16,12 @@
 
 ## 🧰 技术栈
 
-| 层 | 技术 |
-|---|---|
-| 前端 | Vue 3 (Composition API) + Vite + ECharts 5 + Pinia + Vue Router |
-| 后端 | Express.js + JWT + bcrypt |
+| 层       | 技术                                                            |
+| -------- | --------------------------------------------------------------- |
+| 前端 | Vue 3 (Composition API + TypeScript) + Vite + ECharts 5 + Pinia + Vue Router |
+| 后端 | Express.js + TypeScript + JWT + bcrypt |
 | 数据库 | MySQL 8 |
-| 模块规范 | **ESM**（前后端统一 `import/export`） |
+| 模块规范 | **ESM + TypeScript**（前后端统一 `import/export` + 类型安全） |
 
 ## 🏗️ 项目结构
 
@@ -31,6 +31,9 @@ city-insight-platform/
 │   ├── public/maps/             # GeoJSON 地图数据
 │   ├── src/
 │   │   ├── api/                 # Axios 接口封装
+│   │   ├── composables/         # 组合式函数（useAuth, useMap, useChart）
+│   │   ├── types/               # TypeScript 类型定义
+│   │   ├── enums/               # 枚举常量
 │   │   ├── components/          # 组件（Layout / Common / Charts / BigScreen）
 │   │   ├── stores/              # Pinia 状态管理
 │   │   ├── router/              # 路由
@@ -39,11 +42,17 @@ city-insight-platform/
 │   └── vite.config.js
 │
 ├── backend/                     # Express 后端
-│   ├── config/db.js             # MySQL 连接池
-│   ├── middleware/auth.js       # JWT 鉴权
-│   ├── routes/                  # 路由（auth / regions / dashboard / economy / ...）
-│   ├── scripts/                 # 模拟数据生成脚本
-│   └── server.js
+│   ├── src/
+│   │   ├── config/db.ts             # MySQL 连接池
+│   │   ├── middleware/auth.ts       # JWT 鉴权
+│   │   ├── routes/                  # 路由定义（auth / regions / dashboard / economy / ...）
+│   │   ├── controllers/             # 控制层
+│   │   ├── services/                # 服务层（业务逻辑）
+│   │   ├── types/                   # 类型定义
+│   │   ├── utils/                   # 工具函数
+│   │   ├── scripts/                 # 模拟数据生成脚本
+│   │   └── server.ts                # 入口
+│   └── package.json
 │
 ├── sql/schema.sql               # 数据库建表脚本
 └── README.md
@@ -81,9 +90,9 @@ exit
 cd backend
 npm install
 cp .env.example .env   # 配置数据库连接信息
-node scripts/seedRegions.js     # 生成区域数据（省市区三级）
-node scripts/seedData.js        # 生成业务数据（近5年）
-npm run dev                     # http://localhost:3000
+npm run seed:regions           # 生成区域数据（省市区三级）
+npm run seed:data              # 生成业务数据（近5年）
+npm run dev                    # tsx watch → http://localhost:3000
 ```
 
 ### 4. 启动前端
@@ -91,32 +100,10 @@ npm run dev                     # http://localhost:3000
 ```bash
 cd frontend
 npm install
-npm run dev                     # http://localhost:5173
+npm run dev                    # vite → http://localhost:5173
 ```
 
 > 前端开发服务器已配置代理，`/api/*` 请求自动转发到后端 `3000` 端口。
-
-## 📖 学习路线
-
-本项目按**15步循序渐进**的方式实现，每步聚焦一个知识点：
-
-| 步骤 | 内容 | 知识点 |
-|---|---|---|
-| 01 | 项目初始化 + 目录搭建 | 工程化、ESM 配置 |
-| 02 | 数据库设计 + 建表 | 表关系、索引 |
-| 03 | 模拟数据生成脚本 | Node.js 操作数据库 |
-| 04 | 后端 JWT 认证 | Express、JWT、bcrypt |
-| 05 | 后端业务接口 | RESTful API、SQL 聚合 |
-| 06 | 前端项目初始化 | Vite、Router、Pinia、Axios |
-| 07 | 登录/注册页面 | 表单处理、Token 持久化 |
-| 08 | 地图 + GeoJSON | ECharts 地图渲染 |
-| 09 | 地图下钻 + 联动 | 状态管理、组件通信 |
-| 10 | 总览驾驶舱 | 组件封装、布局 |
-| 11 | 经济发展页面 | ECharts 各类图表 |
-| 12 | 人口 + 交通页面 | 热力图、堆叠图 |
-| 13 | 生态环境页面 | 仪表盘、雷达图 |
-| 14 | 全屏大屏 | 自适应、定时器、动效 |
-| 15 | 联调 + 优化 + README | 项目收尾 |
 
 ## 🎯 项目目标
 

@@ -6,10 +6,10 @@
 
 | 层 | 技术 |
 |---|---|
-| 前端 | Vue 3 (Composition API) + Vite + ECharts + Pinia + Vue Router |
-| 后端 | Express.js + JWT 鉴权 |
+| 前端 | Vue 3 (Composition API + TypeScript) + Vite + ECharts + Pinia + Vue Router |
+| 后端 | Express.js + TypeScript + JWT 鉴权 |
 | 数据库 | MySQL |
-| 编码规范 | 前后端统一 ESM 模块（`import/export`），后端 package.json 配置 `"type": "module"` |
+| 编码规范 | 前后端统一 ESM 模块（`import/export`），全 TypeScript 开发，后端 package.json 配置 `"type": "module"` |
 
 ## 项目结构
 
@@ -23,6 +23,9 @@ city-insight-platform/
 │   ├── src/
 │   │   ├── api/                 # API 请求封装（axios）
 │   │   ├── assets/styles/       # 全局样式（深色科技风）
+│   │   ├── composables/         # 组合式函数（useAuth, useMap, useChart）
+│   │   ├── types/               # TypeScript 类型定义
+│   │   ├── enums/               # 枚举常量
 │   │   ├── components/
 │   │   │   ├── Layout/          # 主布局 + 侧边栏
 │   │   │   ├── Common/          # KpiCard, SkeletonLoader, RegionBreadcrumb
@@ -35,14 +38,21 @@ city-insight-platform/
 │   └── package.json
 │
 ├── backend/                     # Express 后端（独立项目）
-│   ├── config/db.js             # MySQL 连接池
-│   ├── middleware/auth.js       # JWT 验证中间件
-│   ├── routes/                  # 路由模块（auth, regions, dashboard, economy, population, traffic, environment）
-│   ├── scripts/                 # 模拟数据生成脚本（seedRegions.js, seedData.js）
-│   ├── server.js                # 入口文件
+│   ├── src/
+│   │   ├── config/db.ts         # MySQL 连接池
+│   │   ├── middleware/auth.ts   # JWT 验证中间件
+│   │   ├── routes/              # 路由定义（auth.routes.ts, region.routes.ts, ...）
+│   │   ├── controllers/         # 控制层（HTTP 请求处理）
+│   │   ├── services/            # 服务层（业务逻辑）
+│   │   ├── types/               # TypeScript 类型定义
+│   │   ├── utils/               # 工具函数（统一响应格式等）
+│   │   ├── scripts/             # 模拟数据生成脚本（seedRegions.ts, seedData.ts）
+│   │   └── server.ts            # 入口文件
 │   └── package.json
 │
-└── sql/schema.sql               # 数据库建表脚本
+├── sql/schema.sql               # 数据库建表脚本
+├── tsconfig.json
+└── .prettierrc
 ```
 
 ## 页面路由
@@ -121,11 +131,14 @@ npm run dev                    # → http://localhost:5173
 
 ## 开发约定
 
-1. 前端使用 Composition API + `<script setup>` 语法
-2. 后端使用 ESM（`import/export`），`package.json` 设置 `"type": "module"`
-3. 图表组件统一继承 BaseChart（处理自适应 + 暗色主题）
-4. 地图下钻状态通过 Pinia（`stores/map.js`）全局管理
-5. 所有业务页面通过 `watch` 监听 `mapStore.currentRegion` 实现图表联动
+1. 前端使用 Composition API + `<script setup lang="ts">` 语法
+2. 后端使用 TypeScript + ESM，`package.json` 设置 `"type": "module"`，通过 `tsx` 运行
+3. 前端逻辑复用优先使用**组合式函数（Composables）**`src/composables/`
+4. 后端采用**分层架构**：Routes → Controllers → Services，每层职责单一
+5. 后端统一响应格式：`{ code, message, data }`
+6. 图表组件统一继承 BaseChart（处理自适应 + 暗色主题）
+7. 地图下钻状态通过 `composables/useMap.ts` 管理
+8. 所有业务页面通过 `watch` 监听 `currentRegion` 实现图表联动
 
 ---
 
@@ -134,11 +147,12 @@ npm run dev                    # → http://localhost:5173
 本项目按**循序渐进**的方式分步实现，每一步聚焦一个知识点，建议按顺序走。
 
 ### 第1步：项目初始化 + 目录搭建
-**知识点：** 工程化、项目结构设计、ESM 配置
+**知识点：** 工程化、项目结构设计、ESM 配置、TypeScript 初始化
 - 创建 `frontend/` 和 `backend/` 目录
 - 初始化 `package.json`（后端加 `"type": "module"`）
+- 配置 TypeScript（`tsconfig.json` + `tsx` 运行环境）
 - 创建完整目录结构（参照上方项目结构）
-- 配置 `.gitignore`
+- 配置 `.gitignore`、`.prettierrc`
 
 ### 第2步：数据库设计 + 建表
 **知识点：** 数据库设计、表关系、索引

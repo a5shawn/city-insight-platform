@@ -5,7 +5,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 // 后续步骤：添加 Router、页面组件等
 </script>
 
