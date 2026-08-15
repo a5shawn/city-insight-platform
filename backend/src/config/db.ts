@@ -9,6 +9,10 @@ const dbConfig = {
   password: process.env.DB_PASSWORD || '123456',
   database: process.env.DB_NAME || 'city_insight',
   charset: 'utf8mb4',
+  // DECIMAL 类型以数字返回（mysql2 默认返回字符串，前端图表需要数字）
+  decimalNumbers: true,
+  // DATE/DATETIME 类型以 "YYYY-MM-DD" 字符串返回（默认是 Date 对象，序列化带时区偏移）
+  dateStrings: true,
   // 连接池配置
   waitForConnections: true,
   connectionLimit: 10,

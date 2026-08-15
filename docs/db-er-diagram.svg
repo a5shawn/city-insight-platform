@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="940" viewBox="0 0 1360 940" font-family="'Microsoft YaHei','Segoe UI',sans-serif">
+  <defs>
+    <linearGradient id="hdg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#153a6b"/>
+      <stop offset="1" stop-color="#0c2345"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#00d4ff"/>
+    </marker>
+    <style>
+      .edge { stroke: #00d4ff; stroke-opacity: 0.45; stroke-width: 1.6; fill: none; }
+      .edge-label { fill: #00e396; font-size: 11px; font-weight: 700; }
+      .box { fill: #0e1c38; stroke: rgba(0,212,255,0.28); stroke-width: 1.2; }
+      .box-loose { fill: #0e1c38; stroke: rgba(180,210,255,0.38); stroke-width: 1.2; stroke-dasharray: 5 4; }
+      .head { fill: url(#hdg); }
+      .head-title { fill: #ffffff; font-size: 13px; font-weight: 700; }
+      .head-idx { fill: #f9a94a; font-size: 10px; }
+      .col { fill: #b9cde8; font-size: 12px; }
+      .col-fk { fill: #00d4ff; font-size: 12px; font-weight: 600; }
+      .type { fill: #5d7597; font-size: 11px; }
+      .pk { fill: #f9d14a; font-size: 11px; font-weight: 700; }
+      .fk { fill: #00d4ff; font-size: 11px; font-weight: 700; }
+      .uq { fill: #b58cff; font-size: 11px; font-weight: 700; }
+      .sep { stroke: rgba(255,255,255,0.05); stroke-width: 1; }
+      .fkrow { fill: rgba(0,212,255,0.07); }
+      .muted { fill: #6b8bb5; }
+      .legend { fill: #c6d7ea; font-size: 12px; }
+    </style>
+  </defs>
+
+  <rect width="1360" height="940" fill="#0a1628"/>
+
+  <!-- ======================= 标题 ======================= -->
+  <text x="680" y="36" text-anchor="middle" fill="#e8f4ff" font-size="23" font-weight="700">city_insight 数据库表关系图</text>
+  <text x="680" y="58" text-anchor="middle" class="muted" font-size="12">6 张表 · regions 为核心枢纽 · 业务表均经 region_id 关联</text>
+  <text x="680" y="76" text-anchor="middle" class="muted" font-size="12">区域表自关联支撑「省 → 市 → 区县」三级下钻</text>
+
+  <!-- ======================= users（独立表） ======================= -->
+  <g>
+    <rect x="40" y="60" width="270" height="148" rx="10" class="box-loose"/>
+    <rect x="40" y="60" width="270" height="30" rx="10" class="head"/>
+    <rect x="40" y="75" width="270" height="15" class="head"/>
+    <text x="54" y="80" class="head-title">users</text>
+    <text x="296" y="80" text-anchor="end" class="head-idx">用户表</text>
+    <text x="54" y="113" class="col">id</text><text x="270" y="113" text-anchor="end" class="type">INT</text><text x="294" y="113" text-anchor="end" class="pk">PK</text>
+    <text x="54" y="135" class="col">username</text><text x="270" y="135" text-anchor="end" class="type">VARCHAR(50)</text><text x="294" y="135" text-anchor="end" class="uq">UQ</text>
+    <text x="54" y="157" class="col">password</text><text x="294" y="157" text-anchor="end" class="type">VARCHAR(255)</text>
+    <text x="54" y="179" class="col">nickname</text><text x="294" y="179" text-anchor="end" class="type">VARCHAR(50)</text>
+    <text x="54" y="201" class="col">created_at</text><text x="294" y="201" text-anchor="end" class="type">DATETIME</text>
+    <text x="40" y="224" class="muted" font-size="11">独立认证表（与其他表无外键关联）</text>
+  </g>
+
+  <!-- ======================= regions（核心枢纽 + 自关联） ======================= -->
+  <g>
+    <rect x="470" y="360" width="340" height="192" rx="10" class="box"/>
+    <rect x="470" y="360" width="340" height="30" rx="10" class="head"/>
+    <rect x="470" y="375" width="340" height="15" class="head"/>
+    <text x="484" y="380" class="head-title">regions</text>
+    <text x="796" y="380" text-anchor="end" class="head-idx">▲ level, parent_id</text>
+    <text x="484" y="413" class="col">id</text><text x="770" y="413" text-anchor="end" class="type">INT</text><text x="794" y="413" text-anchor="end" class="pk">PK</text>
+    <rect x="476" y="420" width="328" height="22" class="fkrow"/>
+    <text x="484" y="435" class="col-fk">parent_id</text><text x="770" y="435" text-anchor="end" class="type">INT</text><text x="794" y="435" text-anchor="end" class="fk">FK</text>
+    <text x="484" y="457" class="col">name</text><text x="794" y="457" text-anchor="end" class="type">VARCHAR(50)</text>
+    <text x="484" y="479" class="col">level</text><text x="794" y="479" text-anchor="end" class="type">TINYINT(1/2/3)</text>
+    <text x="484" y="501" class="col">area_code</text><text x="794" y="501" text-anchor="end" class="type">VARCHAR(20)</text>
+    <text x="484" y="523" class="col">longitude</text><text x="794" y="523" text-anchor="end" class="type">DECIMAL(10,6)</text>
+    <text x="484" y="545" class="col">latitude</text><text x="794" y="545" text-anchor="end" class="type">DECIMAL(10,6)</text>
+  </g>
+
+  <!-- regions 自关联 -->
+  <path d="M 480 360 C 450 278, 700 268, 662 354" class="edge" marker-end="url(#arrow)"/>
+  <text x="575" y="284" text-anchor="middle" class="edge-label">parent_id 自关联 · 1 : N</text>
+
+  <!-- ======================= traffic_data ======================= -->
+  <g>
+    <rect x="960" y="60" width="320" height="192" rx="10" class="box"/>
+    <rect x="960" y="60" width="320" height="30" rx="10" class="head"/>
+    <rect x="960" y="75" width="320" height="15" class="head"/>
+    <text x="974" y="80" class="head-title">traffic_data</text>
+    <text x="1266" y="80" text-anchor="end" class="head-idx">▲ (region_id, record_date)</text>
+    <text x="974" y="113" class="col">id</text><text x="1240" y="113" text-anchor="end" class="type">INT</text><text x="1264" y="113" text-anchor="end" class="pk">PK</text>
+    <rect x="966" y="120" width="308" height="22" class="fkrow"/>
+    <text x="974" y="135" class="col-fk">region_id</text><text x="1240" y="135" text-anchor="end" class="type">INT</text><text x="1264" y="135" text-anchor="end" class="fk">FK</text>
+    <text x="974" y="157" class="col">record_date</text><text x="1264" y="157" text-anchor="end" class="type">DATE</text>
+    <text x="974" y="179" class="col">hour</text><text x="1264" y="179" text-anchor="end" class="type">TINYINT</text>
+    <text x="974" y="201" class="col">congestion_index</text><text x="1264" y="201" text-anchor="end" class="type">DECIMAL(4,2)</text>
+    <text x="974" y="223" class="col">bus/metro/taxi_ridership</text><text x="1264" y="223" text-anchor="end" class="type">INT ×3</text>
+    <text x="974" y="245" class="col">accidents</text><text x="1264" y="245" text-anchor="end" class="type">INT</text>
+  </g>
+
+  <!-- ======================= population_data ======================= -->
+  <g>
+    <rect x="960" y="330" width="320" height="214" rx="10" class="box"/>
+    <rect x="960" y="330" width="320" height="30" rx="10" class="head"/>
+    <rect x="960" y="345" width="320" height="15" class="head"/>
+    <text x="974" y="350" class="head-title">population_data</text>
+    <text x="1266" y="350" text-anchor="end" class="head-idx">▲ (region_id, year)</text>
+    <text x="974" y="383" class="col">id</text><text x="1240" y="383" text-anchor="end" class="type">INT</text><text x="1264" y="383" text-anchor="end" class="pk">PK</text>
+    <rect x="966" y="390" width="308" height="22" class="fkrow"/>
+    <text x="974" y="405" class="col-fk">region_id</text><text x="1240" y="405" text-anchor="end" class="type">INT</text><text x="1264" y="405" text-anchor="end" class="fk">FK</text>
+    <text x="974" y="427" class="col">year</text><text x="1264" y="427" text-anchor="end" class="type">INT</text>
+    <text x="974" y="449" class="col">total_population</text><text x="1264" y="449" text-anchor="end" class="type">INT</text>
+    <text x="974" y="471" class="col">urban/rural_population</text><text x="1264" y="471" text-anchor="end" class="type">INT ×2</text>
+    <text x="974" y="493" class="col">male/female_population</text><text x="1264" y="493" text-anchor="end" class="type">INT ×2</text>
+    <text x="974" y="515" class="col">age_0_14/15_59/60_plus</text><text x="1264" y="515" text-anchor="end" class="type">INT ×3</text>
+    <text x="974" y="537" class="col">net_inflow</text><text x="1264" y="537" text-anchor="end" class="type">INT</text>
+  </g>
+
+  <!-- ======================= economy_data ======================= -->
+  <g>
+    <rect x="40" y="600" width="320" height="236" rx="10" class="box"/>
+    <rect x="40" y="600" width="320" height="30" rx="10" class="head"/>
+    <rect x="40" y="615" width="320" height="15" class="head"/>
+    <text x="54" y="620" class="head-title">economy_data</text>
+    <text x="346" y="620" text-anchor="end" class="head-idx">▲ (region_id, year)</text>
+    <text x="54" y="653" class="col">id</text><text x="320" y="653" text-anchor="end" class="type">INT</text><text x="344" y="653" text-anchor="end" class="pk">PK</text>
+    <rect x="46" y="660" width="308" height="22" class="fkrow"/>
+    <text x="54" y="675" class="col-fk">region_id</text><text x="320" y="675" text-anchor="end" class="type">INT</text><text x="344" y="675" text-anchor="end" class="fk">FK</text>
+    <text x="54" y="697" class="col">year</text><text x="344" y="697" text-anchor="end" class="type">INT</text>
+    <text x="54" y="719" class="col">quarter</text><text x="344" y="719" text-anchor="end" class="type">TINYINT</text>
+    <text x="54" y="741" class="col">gdp</text><text x="344" y="741" text-anchor="end" class="type">DECIMAL(15,2)</text>
+    <text x="54" y="763" class="col">gdp_growth</text><text x="344" y="763" text-anchor="end" class="type">DECIMAL(5,2)</text>
+    <text x="54" y="785" class="col">primary~tertiary_industry</text><text x="344" y="785" text-anchor="end" class="type">DECIMAL ×3</text>
+    <text x="54" y="807" class="col">budget_revenue</text><text x="344" y="807" text-anchor="end" class="type">DECIMAL(15,2)</text>
+    <text x="54" y="829" class="col">fixed_investment</text><text x="344" y="829" text-anchor="end" class="type">DECIMAL(15,2)</text>
+  </g>
+
+  <!-- ======================= environment_data ======================= -->
+  <g>
+    <rect x="960" y="620" width="320" height="192" rx="10" class="box"/>
+    <rect x="960" y="620" width="320" height="30" rx="10" class="head"/>
+    <rect x="960" y="635" width="320" height="15" class="head"/>
+    <text x="974" y="640" class="head-title">environment_data</text>
+    <text x="1266" y="640" text-anchor="end" class="head-idx">▲ (region_id, record_date)</text>
+    <text x="974" y="673" class="col">id</text><text x="1240" y="673" text-anchor="end" class="type">INT</text><text x="1264" y="673" text-anchor="end" class="pk">PK</text>
+    <rect x="966" y="680" width="308" height="22" class="fkrow"/>
+    <text x="974" y="695" class="col-fk">region_id</text><text x="1240" y="695" text-anchor="end" class="type">INT</text><text x="1264" y="695" text-anchor="end" class="fk">FK</text>
+    <text x="974" y="717" class="col">record_date</text><text x="1264" y="717" text-anchor="end" class="type">DATE</text>
+    <text x="974" y="739" class="col">aqi</text><text x="1264" y="739" text-anchor="end" class="type">INT</text>
+    <text x="974" y="761" class="col">pm25/pm10/o3/no2/so2</text><text x="1264" y="761" text-anchor="end" class="type">DECIMAL ×5</text>
+    <text x="974" y="783" class="col">water_quality</text><text x="1264" y="783" text-anchor="end" class="type">VARCHAR(20)</text>
+    <text x="974" y="805" class="col">green_coverage</text><text x="1264" y="805" text-anchor="end" class="type">DECIMAL(5,2)</text>
+  </g>
+
+  <!-- ======================= 关联线 ======================= -->
+  <!-- economy_data -> regions -->
+  <path d="M 360 671 C 415 671, 415 478, 470 478" class="edge" marker-end="url(#arrow)"/>
+  <text x="370" y="662" class="edge-label">N : 1</text>
+
+  <!-- traffic_data -> regions -->
+  <path d="M 960 131 C 895 131, 870 390, 810 390" class="edge" marker-end="url(#arrow)"/>
+  <text x="932" y="120" text-anchor="end" class="edge-label">N : 1</text>
+
+  <!-- population_data -> regions -->
+  <path d="M 960 401 C 900 401, 870 500, 810 500" class="edge" marker-end="url(#arrow)"/>
+  <text x="932" y="390" text-anchor="end" class="edge-label">N : 1</text>
+
+  <!-- environment_data -> regions -->
+  <path d="M 960 691 C 895 691, 870 525, 810 525" class="edge" marker-end="url(#arrow)"/>
+  <text x="932" y="680" text-anchor="end" class="edge-label">N : 1</text>
+
+  <!-- ======================= 图例 ======================= -->
+  <g>
+    <rect x="40" y="874" width="12" height="12" rx="3" fill="#f9d14a"/>
+    <text x="60" y="885" class="legend">PK 主键</text>
+    <rect x="160" y="874" width="12" height="12" rx="3" fill="#00d4ff"/>
+    <text x="180" y="885" class="legend">FK 外键</text>
+    <rect x="280" y="874" width="12" height="12" rx="3" fill="#b58cff"/>
+    <text x="300" y="885" class="legend">UQ 唯一键</text>
+    <line x1="405" y1="880" x2="440" y2="880" class="edge" marker-end="url(#arrow)"/>
+    <text x="448" y="885" class="legend">N : 1 多对一</text>
+    <rect x="565" y="874" width="12" height="12" rx="3" fill="#f9a94a"/>
+    <text x="585" y="885" class="legend">▲ 查询索引</text>
+  </g>
+  <text x="40" y="918" class="muted" font-size="11">删除区域时，其下四级业务数据随 ON DELETE CASCADE 级联删除</text>
+  <text x="1320" y="918" text-anchor="end" class="muted" font-size="11">InnoDB · utf8mb4_unicode_ci</text>
+</svg>

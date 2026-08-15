@@ -1,4 +1,4 @@
-import type { Response } from 'express'
+import type { Response, NextFunction } from 'express'
 import type { ApiResponse } from '../types'
 
 /** 成功响应 */
@@ -45,4 +45,16 @@ export function sendSuccess<T>(res: Response, data: T, message?: string) {
 /** 发送 JSON 错误响应 */
 export function sendError(res: Response, code: number, message: string) {
   res.status(code >= 100 && code < 600 ? code : 500).json(error(message, code))
+}
+
+/**
+ * controller 统一错误处理
+ * service 抛出的业务错误形如 throw { status, message }，这里转为标准错误响应；
+ * 其余未知错误交给全局错误中间件处理
+ */
+export function handleServiceError(err: any, res: Response, next: NextFunction) {
+  if (err.status && err.message) {
+    return sendError(res, err.status, err.message)
+  }
+  next(err)
 }

@@ -342,7 +342,7 @@ function quarterRatio(quarter: number): number {
 }
 
 /** 生成城市某年的经济数据 */
-function genEconomyForCity(city: string, year: number, base: BaseEconomy) {
+function genEconomyForCity(year: number, base: BaseEconomy) {
   const factor = growthFactor(year)
   const yearlyGrowth = base.gdpGrowth * (1 - (year - 2021) * 0.05) // 增速逐年递减
   const gdp = roundTo(base.gdp * factor, 2)
@@ -382,7 +382,6 @@ function genPopulation(base: BasePopulation, year: number, isCity: boolean) {
   const malePct = base.malePct + y * -0.05 // 男女比例逐年趋于平衡
   const male = roundTo((total * malePct) / 100, 0)
   const female = total - male
-  const agingRate = base.age0_14Pct + y * 0.1 // 老龄化逐年微增
   const age0_14 = roundTo(total * (base.age0_14Pct / 100) * (1 - y * 0.01), 0)
   const age60Plus = roundTo(
     total * ((100 - base.age0_14Pct - base.age15_59Pct) / 100) * (1 + y * 0.03),
@@ -498,7 +497,6 @@ async function main() {
   let ecoCount = 0
 
   // 省级：年度 + 季度
-  let provGdpSum = 0
   const provEconomyByYear: Record<number, any> = {}
 
   for (const year of years) {
@@ -514,7 +512,7 @@ async function main() {
     for (const city of cities) {
       const base = CITY_ECONOMY[city.name]
       if (!base) continue
-      const eco = genEconomyForCity(city.name, year, base)
+      const eco = genEconomyForCity(year, base)
       totalGdp += eco.gdp
       totalPrimary += eco.primary
       totalSecondary += eco.secondary
@@ -610,7 +608,7 @@ async function main() {
     if (!base) continue
 
     for (const year of years) {
-      const eco = genEconomyForCity(city.name, year, base)
+      const eco = genEconomyForCity(year, base)
       await batchInsert(
         'economy_data',
         [
@@ -657,7 +655,7 @@ async function main() {
     adjustedWeights[adjustedWeights.length - 1] = 1 - sumExceptLast
 
     for (const year of years) {
-      const cityEco = genEconomyForCity(city.name, year, base)
+      const cityEco = genEconomyForCity(year, base)
       for (let i = 0; i < districts.length; i++) {
         const de = genEconomyForDistrict(cityEco, adjustedWeights[i])
         await batchInsert(
@@ -815,7 +813,6 @@ async function main() {
     const dNorm = dWeights.map((w) => w / dTotal)
 
     for (const year of years) {
-      const cityPop = genPopulation(base, year, true)
       for (let i = 0; i < districts.length; i++) {
         const dw = dNorm[i]
         const dp: BasePopulation = {
